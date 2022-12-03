@@ -13,9 +13,9 @@ router = APIRouter()
     response_model=schemas.Client,
     status_code=status.HTTP_201_CREATED
 )
-def create_client(
+async def create_client(
         obj_in: schemas.ClientCreate,
-        db_client: AsyncIOMotorClient = Depends(Depends(deps.get_mongo_client))
+        db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
     client = await repo.client.create(db_client, obj_in=obj_in)
     return client
@@ -26,7 +26,7 @@ def create_client(
     response_model=schemas.Client,
     status_code=status.HTTP_200_OK
 )
-def update_client(
+async def update_client(
         client_id: str,
         obj_in: schemas.ClientUpdate,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
@@ -42,7 +42,7 @@ def update_client(
     response_model=schemas.Client,
     status_code=status.HTTP_200_OK
 )
-def delete_client(
+async def delete_client(
         client_id: str,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):

@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get('/')
-def get_all_mailings():
+async def get_all_mailings():
     ...
 
 
@@ -18,7 +18,7 @@ def get_all_mailings():
     response_model=schemas.Mailing,
     status_code=status.HTTP_200_OK
 )
-def get_mailing(
+async def get_mailing(
         mailing_id: str,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
@@ -33,7 +33,7 @@ def get_mailing(
     response_model=schemas.Mailing,
     status_code=status.HTTP_201_CREATED
 )
-def create_mailings(
+async def create_mailings(
         obj_in: schemas.MailingCreate,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
@@ -46,7 +46,7 @@ def create_mailings(
     response_model=schemas.Mailing,
     status_code=status.HTTP_200_OK
 )
-def update_mailing(
+async def update_mailing(
         mailing_id: str,
         obj_in: schemas.MailingCreate,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
@@ -64,7 +64,7 @@ def update_mailing(
     response_model=schemas.Mailing,
     status_code=status.HTTP_200_OK
 )
-def delete_mailing(
+async def delete_mailing(
         mailing_id: str,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
