@@ -1,5 +1,5 @@
 from src.repo.base import BaseRepo
-from src.schemas.client import Client, ClientCreate, ClientUpdate
+from src.schemas import Client, ClientCreate, ClientUpdate
 
 
 class ClientRepo(BaseRepo[Client, ClientCreate, ClientUpdate]):
