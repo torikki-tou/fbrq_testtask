@@ -18,11 +18,14 @@ def get_all_mailings():
     response_model=schemas.Mailing,
     status_code=status.HTTP_200_OK
 )
-def get_all_mailings(
+def get_mailing(
         mailing_id: str,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
-    ...
+    mailing = await repo.mailing.get(db_client, id_=mailing_id)
+    if not mailing:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return mailing
 
 
 @router.post(
@@ -30,11 +33,12 @@ def get_all_mailings(
     response_model=schemas.Mailing,
     status_code=status.HTTP_201_CREATED
 )
-def get_all_mailings(
+def create_mailings(
         obj_in: schemas.MailingCreate,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
-    ...
+    mailing = await repo.mailing.create(db_client, obj_in=obj_in)
+    return mailing
 
 
 @router.patch(
@@ -42,12 +46,17 @@ def get_all_mailings(
     response_model=schemas.Mailing,
     status_code=status.HTTP_200_OK
 )
-def get_all_mailings(
+def update_mailing(
         mailing_id: str,
         obj_in: schemas.MailingCreate,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
-    ...
+    mailing = await repo.mailing.update(
+        db_client, id_=mailing_id, obj_in=obj_in
+    )
+    if not mailing:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return mailing
 
 
 @router.delete(
@@ -55,8 +64,11 @@ def get_all_mailings(
     response_model=schemas.Mailing,
     status_code=status.HTTP_200_OK
 )
-def get_all_mailings(
+def delete_mailing(
         mailing_id: str,
         db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
 ):
-    ...
+    mailing = await repo.mailing.remove(db_client, id_=mailing_id)
+    if not mailing:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return mailing
