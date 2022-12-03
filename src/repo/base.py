@@ -40,8 +40,8 @@ class BaseRepo(Generic[Model, CreateSchema, UpdateSchema]):
             obj_in: CreateSchema
     ) -> Model:
         collection = self.get_db_collection(db_client)
-        obj_id = (await collection.insert_one(obj_in)).inserted_id
-        return await self.get(collection, id_=obj_id)
+        obj_id = (await collection.insert_one(obj_in.dict())).inserted_id
+        return await self.get(db_client, id_=obj_id)
 
     async def update(
             self,
@@ -52,8 +52,11 @@ class BaseRepo(Generic[Model, CreateSchema, UpdateSchema]):
         if not isinstance(id_, ObjectId) and not ObjectId.is_valid(id_):
             return None
         collection = self.get_db_collection(db_client)
-        await collection.update_one({'_id': ObjectId(id_)}, {'$set': obj_in})
-        return await self.get(collection, id_=id_)
+        await collection.update_one(
+            {'_id': ObjectId(id_)},
+            {'$set': obj_in.dict()}
+        )
+        return await self.get(db_client, id_=id_)
 
     async def remove(
             self,
@@ -63,7 +66,7 @@ class BaseRepo(Generic[Model, CreateSchema, UpdateSchema]):
         if not isinstance(id_, ObjectId) and not ObjectId.is_valid(id_):
             return None
         collection = self.get_db_collection(db_client)
-        obj = await self.get(collection, id_=id_)
+        obj = await self.get(db_client, id_=id_)
         if not obj:
             return None
         await collection.delete_one({'_id': ObjectId(id_)})

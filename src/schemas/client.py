@@ -4,17 +4,14 @@ from pydantic import BaseModel
 
 
 class ClientBase(BaseModel):
-    phone_number: Optional[int] = None
-    operator_code: Optional[int] = None
+    phone_number: int
+    operator_code: int
     tag: Optional[str] = None
-    timezone: Optional[int] = None
+    timezone: int
 
 
 class ClientCreate(ClientBase):
-    phone_number: int
-    operator_code: int
-    tag: str
-    timezone: int
+    pass
 
 
 class ClientUpdate(ClientBase):
