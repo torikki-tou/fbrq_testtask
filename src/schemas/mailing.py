@@ -5,17 +5,14 @@ from pydantic import BaseModel
 
 
 class MailingBase(BaseModel):
-    start_time: Optional[datetime.datetime] = None
-    message_text: Optional[str] = None
+    start_time: datetime.datetime
+    message_text: str
     filter: Optional[dict] = None
-    end_time: Optional[datetime.datetime] = None
+    end_time: datetime.datetime
 
 
 class MailingCreate(MailingBase):
-    start_time: datetime.datetime
-    message_text: str
-    filter: dict
-    end_time: datetime.datetime
+    pass
 
 
 class MailingUpdate(MailingBase):
