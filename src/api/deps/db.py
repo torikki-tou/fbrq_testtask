@@ -1,4 +1,4 @@
-from src.db.mongo import MongoClient
+from src.db import get_mongo_client
 
 
-get_mongo_client = MongoClient()
+mongo_client = get_mongo_client

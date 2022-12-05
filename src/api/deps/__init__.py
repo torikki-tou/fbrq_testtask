@@ -1,1 +1,1 @@
-from src.api.deps.db import get_mongo_client
+from src.api.deps.db import mongo_client
