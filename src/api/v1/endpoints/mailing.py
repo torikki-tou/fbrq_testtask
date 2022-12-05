@@ -42,7 +42,14 @@ def create_mailings(
         obj_in: schemas.MailingCreate,
         db_client: MongoClient = Depends(deps.mongo_client)
 ):
-    mailing = await repo.mailing.create(db_client, obj_in=obj_in)
+    mailing = repo.mailing.create(db_client, obj_in=obj_in)
+    if not mailing.end_time < datetime.datetime.now():
+        start_mailing.apply_async(
+            args=(mailing.dict(by_alias=True),),
+            eta=mailing.start_time,
+            expires=mailing.end_time,
+            ignore_result=True
+        )
     return mailing
 
 
