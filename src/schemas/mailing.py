@@ -1,13 +1,18 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
+
+
+class Filter(BaseModel):
+    operator_code: Optional[int] = None
+    tag: Optional[str] = None
 
 
 class MailingBase(BaseModel):
     start_time: datetime.datetime
     message_text: str
-    filter: Optional[dict] = None
+    filter: Filter
     end_time: datetime.datetime
 
 
@@ -20,7 +25,10 @@ class MailingUpdate(MailingBase):
 
 
 class MailingInDBBase(MailingBase):
-    id: str
+    id: str = Field(alias='_id')
+
+    @validator('id', pre=True)
+    def validate_id(cls, v): return str(v)
 
 
 class Mailing(MailingInDBBase):
