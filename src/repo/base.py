@@ -2,7 +2,8 @@ from typing import TypeVar, Generic, Type, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+from pymongo import MongoClient
+from pymongo.collection import Collection
 
 Model = TypeVar('Model', bound=BaseModel)
 CreateSchema = TypeVar('CreateSchema', bound=BaseModel)
@@ -16,58 +17,57 @@ class BaseRepo(Generic[Model, CreateSchema, UpdateSchema]):
         self.collection = collection
     
     def get_db_collection(
-            self, db_client: AsyncIOMotorClient
-    ) -> AsyncIOMotorCollection:
+            self, db_client: MongoClient
+    ) -> Collection:
         return db_client[self.database][self.collection]
 
-    async def get(
+    def get(
             self,
-            db_client: AsyncIOMotorClient,
+            db_client: MongoClient,
             id_: str | ObjectId
     ) -> Optional[Model]:
         if not isinstance(id_, ObjectId) and not ObjectId.is_valid(id_):
             return None
         collection = self.get_db_collection(db_client)
-        obj = await collection.find_one({'_id': ObjectId(id_)})
+        obj: Model = collection.find_one({'_id': ObjectId(id_)})
         if not obj:
             return None
-        obj['id'] = str(obj.pop('_id'))
         return self.model(**obj)
 
-    async def create(
+    def create(
             self,
-            db_client: AsyncIOMotorClient,
+            db_client: MongoClient,
             obj_in: CreateSchema
     ) -> Model:
         collection = self.get_db_collection(db_client)
-        obj_id = (await collection.insert_one(obj_in.dict())).inserted_id
-        return await self.get(db_client, id_=obj_id)
+        obj_id = (collection.insert_one(obj_in.dict())).inserted_id
+        return self.get(db_client, id_=obj_id)
 
-    async def update(
+    def update(
             self,
-            db_client: AsyncIOMotorClient,
+            db_client: MongoClient,
             id_: str | ObjectId,
             obj_in: UpdateSchema
     ) -> Optional[Model]:
         if not isinstance(id_, ObjectId) and not ObjectId.is_valid(id_):
             return None
         collection = self.get_db_collection(db_client)
-        await collection.update_one(
+        collection.update_one(
             {'_id': ObjectId(id_)},
             {'$set': obj_in.dict()}
         )
-        return await self.get(db_client, id_=id_)
+        return self.get(db_client, id_=id_)
 
-    async def remove(
+    def remove(
             self,
-            db_client: AsyncIOMotorClient,
+            db_client: MongoClient,
             id_: str | ObjectId
     ) -> Optional[Model]:
         if not isinstance(id_, ObjectId) and not ObjectId.is_valid(id_):
             return None
         collection = self.get_db_collection(db_client)
-        obj = await self.get(db_client, id_=id_)
+        obj = self.get(db_client, id_=id_)
         if not obj:
             return None
-        await collection.delete_one({'_id': ObjectId(id_)})
+        collection.delete_one({'_id': ObjectId(id_)})
         return self.model(**obj.dict())

@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from motor.motor_asyncio import AsyncIOMotorClient
+import datetime
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from pymongo import MongoClient
+
+from src.mailing.tasks import start_mailing
 from src import schemas, repo
 from src.api import deps
 
@@ -9,20 +12,21 @@ router = APIRouter()
 
 
 @router.get('/')
-async def get_all_mailings():
+def get_all_mailings():
     ...
 
 
 @router.get(
     '/{mailing_id}',
     response_model=schemas.Mailing,
+    response_model_by_alias=False,
     status_code=status.HTTP_200_OK
 )
-async def get_mailing(
+def get_mailing(
         mailing_id: str,
-        db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
+        db_client: MongoClient = Depends(deps.mongo_client)
 ):
-    mailing = await repo.mailing.get(db_client, id_=mailing_id)
+    mailing = repo.mailing.get(db_client, id_=mailing_id)
     if not mailing:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return mailing
@@ -31,11 +35,12 @@ async def get_mailing(
 @router.post(
     '/',
     response_model=schemas.Mailing,
+    response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED
 )
-async def create_mailings(
+def create_mailings(
         obj_in: schemas.MailingCreate,
-        db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
+        db_client: MongoClient = Depends(deps.mongo_client)
 ):
     mailing = await repo.mailing.create(db_client, obj_in=obj_in)
     return mailing
@@ -44,14 +49,15 @@ async def create_mailings(
 @router.patch(
     '/{mailing_id}',
     response_model=schemas.Mailing,
+    response_model_by_alias=False,
     status_code=status.HTTP_200_OK
 )
-async def update_mailing(
+def update_mailing(
         mailing_id: str,
         obj_in: schemas.MailingCreate,
-        db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
+        db_client: MongoClient = Depends(deps.mongo_client)
 ):
-    mailing = await repo.mailing.update(
+    mailing = repo.mailing.update(
         db_client, id_=mailing_id, obj_in=obj_in
     )
     if not mailing:
@@ -62,13 +68,14 @@ async def update_mailing(
 @router.delete(
     '/{mailing_id}',
     response_model=schemas.Mailing,
+    response_model_by_alias=False,
     status_code=status.HTTP_200_OK
 )
-async def delete_mailing(
+def delete_mailing(
         mailing_id: str,
-        db_client: AsyncIOMotorClient = Depends(deps.get_mongo_client)
+        db_client: MongoClient = Depends(deps.mongo_client)
 ):
-    mailing = await repo.mailing.remove(db_client, id_=mailing_id)
+    mailing = repo.mailing.remove(db_client, id_=mailing_id)
     if not mailing:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return mailing
