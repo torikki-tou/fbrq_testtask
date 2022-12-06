@@ -54,7 +54,7 @@ class BaseRepo(Generic[Model, CreateSchema, UpdateSchema]):
         collection = self.get_db_collection(db_client)
         collection.update_one(
             {'_id': ObjectId(id_)},
-            {'$set': obj_in.dict()}
+            {'$set': obj_in.dict(exclude_unset=True)}
         )
         return self.get(db_client, id_=id_)
 
