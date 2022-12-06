@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pymongo import MongoClient
@@ -11,9 +12,45 @@ from src.api import deps
 router = APIRouter()
 
 
-@router.get('/')
-def get_all_mailings():
-    ...
+@router.get(
+    '/',
+    response_model=List[schemas.MailingStats],
+    response_model_by_alias=False,
+    status_code=status.HTTP_200_OK
+)
+def get_all_mailings(
+        limit: int = 10,
+        offset: int = 0,
+        db_client: MongoClient = Depends(deps.mongo_client)
+):
+    mailings = repo.mailing.get_multi(db_client, limit=limit, offset=offset)
+    stats = []
+    for mailing in mailings:
+        delivered = repo.message.count_by_mailing_and_status(
+            db_client,
+            mailing_id=mailing.id,
+            status=schemas.MessageStatus.DELIVERED
+        )
+        undelivered = repo.message.count_by_mailing_and_status(
+            db_client,
+            mailing_id=mailing.id,
+            status=schemas.MessageStatus.UNDELIVERED
+        )
+        failed = repo.message.count_by_mailing_and_status(
+            db_client,
+            mailing_id=mailing.id,
+            status=schemas.MessageStatus.FAILED
+        )
+
+        stats.append(schemas.MailingStats(
+            mailing_data=mailing,
+            messages=schemas.MessagesStats(
+                delivered=delivered,
+                undelivered=undelivered,
+                failed=failed
+            )
+        ))
+    return stats
 
 
 @router.get(
