@@ -4,14 +4,16 @@ from pydantic import BaseModel, Field, validator
 
 
 class ClientBase(BaseModel):
-    phone_number: int
-    operator_code: int
+    phone_number: Optional[int] = None
+    operator_code: Optional[int] = None
     tag: Optional[str] = None
-    timezone: int
+    timezone: Optional[int] = None
 
 
 class ClientCreate(ClientBase):
-    pass
+    phone_number: int
+    operator_code: int
+    timezone: int
 
 
 class ClientUpdate(ClientBase):

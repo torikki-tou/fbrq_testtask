@@ -1,5 +1,5 @@
 from src.schemas.mailing import Mailing, MailingCreate, MailingUpdate
-from src.schemas.mailing import Filter
+from src.schemas.mailing import Filter, MailingStats, MessagesStats
 
 from src.schemas.client import Client, ClientCreate, ClientUpdate
 

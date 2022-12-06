@@ -10,14 +10,17 @@ class Filter(BaseModel):
 
 
 class MailingBase(BaseModel):
+    start_time: Optional[datetime.datetime]
+    message_text: Optional[str]
+    filter: Optional[Filter]
+    end_time: Optional[datetime.datetime]
+
+
+class MailingCreate(MailingBase):
     start_time: datetime.datetime
     message_text: str
     filter: Filter
     end_time: datetime.datetime
-
-
-class MailingCreate(MailingBase):
-    pass
 
 
 class MailingUpdate(MailingBase):
@@ -33,3 +36,17 @@ class MailingInDBBase(MailingBase):
 
 class Mailing(MailingInDBBase):
     pass
+
+
+class MessagesStats(BaseModel):
+    delivered: int
+    undelivered: int
+    failed: int
+
+
+class MailingStats(BaseModel):
+    mailing_data: Mailing
+    messages: MessagesStats
+
+
+

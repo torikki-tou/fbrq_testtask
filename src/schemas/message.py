@@ -1,5 +1,6 @@
 import datetime
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -12,13 +13,14 @@ class MessageStatus(str, Enum):
 
 class MessageBase(BaseModel):
     created_at: datetime.datetime = datetime.datetime.now()
-    status: MessageStatus
-    client_id: str
-    mailing_id: str
+    status: MessageStatus = MessageStatus.UNDELIVERED
+    client_id: Optional[str] = None
+    mailing_id: Optional[str] = None
 
 
 class MessageCreate(MessageBase):
-    pass
+    client_id: str
+    mailing_id: str
 
 
 class MessageUpdate(MessageBase):
@@ -32,5 +34,5 @@ class MessageInDBBase(MessageBase):
     def validate_id(cls, v): return str(v)
 
 
-class Message(MessageBase):
+class Message(MessageInDBBase):
     pass
